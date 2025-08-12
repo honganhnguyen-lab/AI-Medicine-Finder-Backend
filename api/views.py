@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import UploadedImageSerializer
+from .serializers import SymptomQuerySerializer, SymptomAIResultSerializer
+from .openai_helper import analyze_symptoms_to_keywords
 import logging
 
 logger = logging.getLogger(__name__)
@@ -34,4 +36,27 @@ class UploadImageAPIView(APIView):
                 status=status.HTTP_201_CREATED
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class SymptomSearchAPIView(APIView):
+    """
+    POST /api/ask/
+    Body: { "query": "I have acne and oily skin, what should I look for?" }
+    Returns structured JSON with search keywords.
+    """
+    def post(self, request, *args, **kwargs):
+        input_ser = SymptomQuerySerializer(data=request.data)
+        input_ser.is_valid(raise_exception=True)
+        query = input_ser.validated_data["query"]
+
+        ai_data = analyze_symptoms_to_keywords(query)
+        output_ser = SymptomAIResultSerializer(ai_data)
+        data = output_ser.data
+
+        ## required disclaimer
+        disclaimer = (
+            "Not medical advice. For persistent or severe symptoms, consult a licensed healthcare professional."
+        )
+        return Response({"data": data, "disclaimer": disclaimer}, status=status.HTTP_200_OK)
+
 
