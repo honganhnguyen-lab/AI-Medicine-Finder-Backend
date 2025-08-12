@@ -1,23 +1,15 @@
 from decouple import config
 
 INSTALLED_APPS = [
+    'api',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # Third-party
-    'rest_framework',          # <-- add if you're using DRF
-    # 'corsheaders',           # optional (for React dev)
-    # 'storages',              # optional (for S3)
-
-    # Your apps
-    'api',                     # OR use 'api.apps.ApiConfig' if you have apps.py
-    # If your app lives under backend/backend/api/, use:
-    # 'backend.api',
-    # or 'backend.api.apps.ApiConfig',
+    'rest_framework',        
+    'api',
 ]
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
