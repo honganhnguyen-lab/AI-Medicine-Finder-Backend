@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
 from .serializers import UploadedImageSerializer
 from .serializers import SymptomQuerySerializer, SymptomAIResultSerializer
+from .hugging_face_helper import hf_keywords
 from .openai_helper import analyze_symptoms_to_keywords
 import logging
 
@@ -58,5 +59,11 @@ class SymptomSearchAPIView(APIView):
             "Not medical advice. For persistent or severe symptoms, consult a licensed healthcare professional."
         )
         return Response({"data": data, "disclaimer": disclaimer}, status=status.HTTP_200_OK)
+    
+    class SymptomSearchHFAPIView(APIView):
+        def post(self, request):
+            ser = SymptomQuerySerializer(data=request.data); ser.is_valid(raise_exception=True)
+            data = hf_keywords(ser.validated_data["query"])
+            out = SymptomAIResultSerializer(data); return Response({"data": out.data}, status=200)
 
 
