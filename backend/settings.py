@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from decouple import config
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,6 +39,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework',        
+    'api',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -119,4 +124,30 @@ STATIC_URL = "static/"
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
+## Override storage 
+STORAGES = {
+    # Use S3 for user-uploaded media
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    # Keep static files on disk (or switch to S3 later if you want)
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+## AWS key
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = 'us-east-2' 
+
+## OPEN_AI key
+OPENAI_API_KEY = config("OPENAI_API_KEY", default="")
+OPENAI_MODEL = config("OPENAI_MODEL", default="gpt-4o-mini")
+OPENAI_TIMEOUT = config("OPENAI_TIMEOUT", default=20, cast=int) 
+
+## Hugging Face
+HF_MODEL = config("HF_MODEL", default="distilbert-base-uncased-finetuned-sst-2-english")

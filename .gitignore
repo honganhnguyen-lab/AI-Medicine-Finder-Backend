@@ -1,1 +1,30 @@
+# --- Python / Django ---
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.log
 .env
+.venv/
+venv/
+.env.local
+*.bak
+*.tmp
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+
+# --- VS Code ---
+.vscode/
+.history/
+
+# --- Node / frontend ---
+node_modules/
+.next/
+dist/
+build/
+
+# --- Virtual environments ---
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
