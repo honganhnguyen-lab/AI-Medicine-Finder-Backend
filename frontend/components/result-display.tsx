@@ -61,9 +61,9 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
           key={product.id}
           className="overflow-hidden border-border/50 bg-card/80 shadow-xl backdrop-blur-sm"
         >
-          <CardHeader className="border-b border-border/50 bg-gradient-to-r from-primary/10 to-accent/10">
+          <CardHeader className="pt-6 border-b border-border/50 bg-gradient-to-r from-primary/10 to-accent/10">
             <div className="flex items-start gap-4">
-              <div className="relative">
+              {/* <div className="relative">
                 <Image
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
@@ -84,7 +84,7 @@ export function ResultsDisplay({ results }: ResultsDisplayProps) {
                     />
                   </svg>
                 </div>
-              </div>
+              </div> */}
               <div className="flex-1">
                 <CardTitle className="text-lg text-foreground">
                   {product.name}
