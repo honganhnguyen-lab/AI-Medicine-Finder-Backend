@@ -28,3 +28,6 @@ build/
 *.egg-info/
 .eggs/
 pip-wheel-metadata/
+
+### json file
+vision-key.json

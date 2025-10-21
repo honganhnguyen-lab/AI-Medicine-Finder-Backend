@@ -1,44 +1,64 @@
+# api/views.py
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
-from .serializers import UploadedImageSerializer
-from .serializers import SymptomQuerySerializer, SymptomAIResultSerializer
-from .hugging_face_helper import hf_keywords
-from .openai_helper import analyze_symptoms_to_keywords
-import logging
 
-logger = logging.getLogger(__name__)
+from api.openai_helper import analyze_symptoms_to_keywords
+from api.serializers import SymptomAIResultSerializer, SymptomQuerySerializer
+from .ocr import extract_text_from_image
+from .hf_nlp import keywords_from_text
+from .scrapers import multi_search
+
+def _normalize_query_from_keywords(keywords: list[str]) -> str:
+    # join top tokens into a retailer-friendly query
+    return "+".join([k.replace(" ", "+") for k in keywords[:4]]) or ""
 
 class UploadImageAPIView(APIView):
     parser_classes = (MultiPartParser, FormParser)
 
     def post(self, request, *args, **kwargs):
-        print("DEBUG: request =", request)
-        print("DEBUG: request.data =", request.data)
-        logger.debug(f"request: {request}")
-        logger.debug(f"request.data: {list(request.data)}")
-        file_obj = request.data.get('image')
+        f = request.FILES.get("image")
+        if not f:
+            return Response({"detail": "Provide image in form-data with key 'image'."}, status=400)
 
-        print("DEBUG: file_obj =", file_obj)
-        logger.debug(f"file_obj: {file_obj}")
-        
-        if not file_obj:
-            return Response(
-                {"detail": "No file under key 'image'."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # 1) OCR
+        text = extract_text_from_image(f)
 
-        serializer = UploadedImageSerializer(data={'image': file_obj})
-        if serializer.is_valid():
-            serializer.save()
-            return Response(
-                {"message": "Image uploaded", "data": serializer.data},
-                status=status.HTTP_201_CREATED
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # 2) HF keywords
+        kws = keywords_from_text(text)
+        q = _normalize_query_from_keywords(kws) or "ibuprofen"
+
+        # 3) Scrape
+        retailers = request.GET.get("retailers", "walmart,target,costco").split(",")
+        results = multi_search(q, retailers)
+
+        return Response({
+            "ocr_text": text,
+            "keywords": kws,
+            "query": q,
+            "retailers": [r.strip().lower() for r in retailers],
+            "results": results
+        }, status=200)
+
+class SearchProductsAPIView(APIView):
+    def get(self, request):
+        raw = request.GET.get("query", "").strip()
+        if not raw:
+            return Response({"detail": "query is required"}, status=400)
+
+        kws = keywords_from_text(raw)
+        q = _normalize_query_from_keywords(kws) or raw.replace(" ", "+")
+        retailers = request.GET.get("retailers", "walmart,target,costco").split(",")
+        results = multi_search(q, retailers)
+
+        return Response({
+            "keywords": kws,
+            "query": q,
+            "retailers": [r.strip().lower() for r in retailers],
+            "results": results
+        }, status=200)
     
-
 class SymptomSearchAPIView(APIView):
     """
     POST /api/ask/
@@ -59,11 +79,3 @@ class SymptomSearchAPIView(APIView):
             "Not medical advice. For persistent or severe symptoms, consult a licensed healthcare professional."
         )
         return Response({"data": data, "disclaimer": disclaimer}, status=status.HTTP_200_OK)
-    
-    class SymptomSearchHFAPIView(APIView):
-        def post(self, request):
-            ser = SymptomQuerySerializer(data=request.data); ser.is_valid(raise_exception=True)
-            data = hf_keywords(ser.validated_data["query"])
-            out = SymptomAIResultSerializer(data); return Response({"data": out.data}, status=200)
-
-
