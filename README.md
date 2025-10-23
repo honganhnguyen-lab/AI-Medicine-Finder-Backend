@@ -57,7 +57,11 @@ By combining **AI-powered natural language understanding**, **image recognition*
 | Rite Aid | **$9.99** | Low Stock | — |
 
 ---
+## DEMO 
+![Demo Screenshot 1](./demo/demo1.png)
+![Demo Screenshot 2](./demo/demo2.png)
 
+--
 ## 🧠 AI Components Explained  
 
 ### **1. OpenAI API (Natural Language Understanding)**  
