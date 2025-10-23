@@ -94,8 +94,7 @@ function getMockData(query: string) {
   return {
     products: mockProducts,
     confidence: "medium" as const,
-    notes:
-      "Demo mode: Using sample data. Add a credit card to Vercel AI Gateway for real AI-powered product identification.",
+    notes: "Demo products",
   }
 }
 
