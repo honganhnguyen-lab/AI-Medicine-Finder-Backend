@@ -16,6 +16,13 @@ By combining **AI-powered natural language understanding**, **image recognition*
 
 ---
 
+---
+
+## How to run   
+- Backend: python manage.py runserver
+- Frontend: npm run dev
+
+--
 ## 🧰 Tech Stack  
 
 | Layer | Technologies |
