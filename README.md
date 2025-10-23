@@ -15,14 +15,12 @@ By combining **AI-powered natural language understanding**, **image recognition*
 - ☁️ **Full-Stack & Cloud-Ready** – Built with **React.js (frontend)** and **Django (backend)**, deployed on **AWS (EC2, Lambda, S3)** for scalability and performance.  
 
 ---
-
----
-
 ## How to run   
 - Backend: python manage.py runserver
 - Frontend: npm run dev
 
---
+
+---
 ## 🧰 Tech Stack  
 
 | Layer | Technologies |
